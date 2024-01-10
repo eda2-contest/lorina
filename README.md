@@ -7,7 +7,7 @@
 [![Latest release](https://img.shields.io/github/release/hriener/lorina.svg)](https://github.com/hriener/lorina/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-# lorina
+# lorina - CUHK
 
 <img src="https://cdn.rawgit.com/hriener/lorina/master/lorina.svg" width="64" height="64" align="left" style="margin-right: 12pt" />
 lorina is a C++ parsing library.  It provides implementations of parsers for various simple file formats used in logic synthesis and formal verification.

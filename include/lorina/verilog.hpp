@@ -302,6 +302,19 @@ public:
    *
    */
   virtual void on_endmodule() const {}
+
+
+    /*! \brief Callback method for parsed not-gate with 2 operands 
+   * \param op1 operand1 of assignment
+   * \param op2 operand2 of assignment
+   */
+  virtual void on_not_gate( const std::string& op1, const std::string& op2 ) const
+  {
+    (void)op1;
+    (void)op2;
+  }
+
+
 }; /* verilog_reader */
 
 /*! \brief A VERILOG reader for prettyprinting a simplistic VERILOG format.
@@ -1038,6 +1051,18 @@ public:
           return false;
         }
       }
+      else if ( token == "not" )
+      {
+        success = parse_not_gate();
+        if ( !success )
+        {
+          if ( diag )
+          {
+            diag->report( diag_id::ERR_VERILOG_GATE_OPERATION_DECLARATION );
+          }
+          return false;
+        }
+      }
       else
       {
         break;
@@ -1123,6 +1148,8 @@ public:
 
     module_name = token;
 
+    //TODO judge wether it is VERIFIC_DFFRS
+
     valid = get_token( token );
     if ( !valid || token != "(" )
       return false;
@@ -1147,6 +1174,40 @@ public:
     reader.on_module_header( module_name, inouts );
 
     return true;
+  }
+
+  bool parse_not_gate() {
+    if ( token != "not" ) 
+      return false;
+
+    valid = get_token( token );
+
+    if (!valid || token != "(")
+      return false;
+
+    std::string op1, op2;
+
+    if ( !parse_signal_name() )
+      return false;
+
+    op1 = token;
+
+    valid = get_token( token ); // , or )
+    if ( !valid || token != "," )
+      return false;
+    
+    if ( !parse_signal_name() )
+      return false;
+
+    op2 = token;
+
+    valid = get_token( token );
+    if ( !valid || token != ";" )
+      return false;
+
+    reader.on_not_gate( op1, op2 );
+    return true;
+
   }
 
   bool parse_inputs()

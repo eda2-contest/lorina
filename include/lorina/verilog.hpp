@@ -57,7 +57,7 @@ public:
    * \param module_name Name of the module
    * \param inouts Container for input and output names
    */
-  virtual void on_module_header( const std::string& module_name, const std::vector<std::string>& inouts ) const
+  virtual void on_module_header( const std::string& module_name, const std::vector<std::string>& inouts )
   {
     (void)module_name;
     (void)inouts;
@@ -68,7 +68,7 @@ public:
    * \param inputs Input names
    * \param size Size modifier
    */
-  virtual void on_inputs( const std::vector<std::string>& inputs, std::string const& size = "" ) const
+  virtual void on_inputs( const std::vector<std::string>& inputs, std::string const& size = "" ) 
   {
     (void)inputs;
     (void)size;
@@ -79,7 +79,7 @@ public:
    * \param outputs Output names
    * \param size Size modifier
    */
-  virtual void on_outputs( const std::vector<std::string>& outputs, std::string const& size = "" ) const
+  virtual void on_outputs( const std::vector<std::string>& outputs, std::string const& size = "" ) 
   {
     (void)outputs;
     (void)size;
@@ -90,7 +90,7 @@ public:
    * \param wires Wire names
    * \param size Size modifier
    */
-  virtual void on_wires( const std::vector<std::string>& wires, std::string const& size = "" ) const
+  virtual void on_wires( const std::vector<std::string>& wires, std::string const& size = "" ) 
   {
     (void)wires;
     (void)size;
@@ -112,7 +112,7 @@ public:
    * \param lhs Left-hand side of assignment
    * \param rhs Right-hand side of assignment
    */
-  virtual void on_assign( const std::string& lhs, const std::pair<std::string, bool>& rhs ) const
+  virtual void on_assign( const std::string& lhs, const std::pair<std::string, bool>& rhs )
   {
     (void)lhs;
     (void)rhs;
@@ -128,7 +128,7 @@ public:
    *             signal in inst_name.
    */
   virtual void on_module_instantiation( std::string const& module_name, std::vector<std::string> const& params, std::string const& inst_name,
-                                        std::vector<std::pair<std::string, std::string>> const& args ) const
+                                        std::vector<std::pair<std::string, std::string>> const& args )
   {
     (void)module_name;
     (void)params;
@@ -281,7 +281,7 @@ public:
    * \param op2 operand2 of assignment
    * \param op3 operand3 of assignment
    */
-  virtual void on_mux21( const std::string& lhs, const std::pair<std::string, bool>& op1, const std::pair<std::string, bool>& op2, const std::pair<std::string, bool>& op3 ) const
+  virtual void on_mux21( const std::string& lhs, const std::pair<std::string, bool>& op1, const std::pair<std::string, bool>& op2, const std::pair<std::string, bool>& op3 )
   {
     (void)lhs;
     (void)op1;
@@ -308,7 +308,7 @@ public:
    * \param op1 operand1 of assignment
    * \param op2 operand2 of assignment
    */
-  virtual void on_not_gate( const std::string& op1, const std::string& op2 ) const
+  virtual void on_not_gate( const std::string& op1, const std::string& op2 )
   {
     (void)op1;
     (void)op2;
@@ -321,7 +321,7 @@ public:
    * \param op2 operand2 of assignment
    * \param op3 operand3 of assignment
    */
-  virtual void on_and_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const
+  virtual void on_and_gate( const std::string& op1, const std::string& op2, const std::string& op3 )
   {
     (void)op1;
     (void)op2;
@@ -335,7 +335,7 @@ public:
    * \param op2 operand2 of assignment
    * \param op3 operand2 of assignment
    */
-  virtual void on_or_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const
+  virtual void on_or_gate( const std::string& op1, const std::string& op2, const std::string& op3 )
   {
     (void)op1;
     (void)op2;
@@ -347,7 +347,7 @@ public:
    * \param op2 operand2 of assignment
    * \param op3 operand2 of assignment
    */
-  virtual void on_xor_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const
+  virtual void on_xor_gate( const std::string& op1, const std::string& op2, const std::string& op3 )
   {
     (void)op1;
     (void)op2;
@@ -360,7 +360,7 @@ public:
    * \param out Output signal
    * \param ins List of three input signals, in the order (if, then, else)
    */
-  virtual void on_assign_mux21( const std::string&  out, const std::vector<std::pair<std::string, bool>>& ins ) const
+  virtual void on_assign_mux21( const std::string&  out, const std::vector<std::pair<std::string, bool>>& ins )
   {
     (void)out;
     (void)ins;
@@ -386,7 +386,7 @@ public:
   {
   }
 
-  void on_module_header( const std::string& module_name, const std::vector<std::string>& inouts ) const override
+  void on_module_header( const std::string& module_name, const std::vector<std::string>& inouts ) override
   {
     std::string params;
     if ( inouts.size() > 0 )
@@ -401,7 +401,7 @@ public:
     _os << fmt::format( "module {}( {} ) ;\n", module_name, params );
   }
 
-  void on_inputs( const std::vector<std::string>& inputs, std::string const& size = "" ) const override
+  void on_inputs( const std::vector<std::string>& inputs, std::string const& size = "" ) override
   {
     if ( inputs.size() == 0 )
       return;
@@ -418,7 +418,7 @@ public:
     _os << " ;\n";
   }
 
-  void on_outputs( const std::vector<std::string>& outputs, std::string const& size = "" ) const override
+  void on_outputs( const std::vector<std::string>& outputs, std::string const& size = "" ) override
   {
     if ( outputs.size() == 0 )
       return;
@@ -435,7 +435,7 @@ public:
     _os << " ;\n";
   }
 
-  void on_wires( const std::vector<std::string>& wires, std::string const& size = "" ) const override
+  void on_wires( const std::vector<std::string>& wires, std::string const& size = "" ) override
   {
     if ( wires.size() == 0 )
       return;
@@ -457,14 +457,14 @@ public:
     _os << "parameter " << name << " = " << value << ";\n";
   }
 
-  void on_assign( const std::string& lhs, const std::pair<std::string, bool>& rhs ) const override
+  void on_assign( const std::string& lhs, const std::pair<std::string, bool>& rhs ) override
   {
     const std::string param = rhs.second ? fmt::format( "~{}", rhs.first ) : rhs.first;
     _os << fmt::format( "assign {} = {} ;\n", lhs, param );
   }
 
   virtual void on_module_instantiation( std::string const& module_name, std::vector<std::string> const& params, std::string const& inst_name,
-                                        std::vector<std::pair<std::string, std::string>> const& args ) const override
+                                        std::vector<std::pair<std::string, std::string>> const& args ) override
   {
     _os << module_name << " ";
     if ( params.size() > 0u )
@@ -565,7 +565,7 @@ public:
     _os << fmt::format( "assign {0} = ( {1} & {2} ) | ( {1} & {3} ) | ( {2} & {3} ) ;\n", lhs, p1, p2, p3 );
   }
 
-  void on_mux21( const std::string& lhs, const std::pair<std::string, bool>& op1, const std::pair<std::string, bool>& op2, const std::pair<std::string, bool>& op3 ) const override {
+  void on_mux21( const std::string& lhs, const std::pair<std::string, bool>& op1, const std::pair<std::string, bool>& op2, const std::pair<std::string, bool>& op3 ) override {
     const std::string p1 = op1.second ? fmt::format( "~{}", op1.first ) : op1.first;
     const std::string p2 = op2.second ? fmt::format( "~{}", op2.first ) : op2.first;
     const std::string p3 = op3.second ? fmt::format( "~{}", op3.first ) : op3.first;
@@ -585,19 +585,19 @@ public:
     _os << "// " << comment << std::endl;
   }
 
-  void on_not_gate( const std::string& op1, const std::string& op2 ) const override{
+  void on_not_gate( const std::string& op1, const std::string& op2 ) override{
     _os << "not " << "(" << op1 << ", " << op2 << ")" << ";" << std::endl;
   }
 
-  void on_and_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const override{
+  void on_and_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) override{
     _os << "and " << "(" << op1 << ", " << op2 << ", " << op3 << ")" << ";" << std::endl;
   }
 
-  void on_or_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const override{
+  void on_or_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) override{
     _os << "or " << "(" << op1 << ", " << op2 << ", " << op3 << ")" << ";" << std::endl;
   }
 
-  void on_xor_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const override{
+  void on_xor_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) override{
     _os << "xor " << "(" << op1 << ", " << op2 << ", " << op3 << ")" << ";" << std::endl;
   }
 
@@ -890,7 +890,7 @@ public:
    * \param diag A diagnostic engine
    */
   verilog_parser( std::istream& in,
-                  const verilog_reader& reader,
+                  verilog_reader& reader,
                   diagnostic_engine* diag = nullptr )
     : tok( in )
     , reader( reader )
@@ -2134,7 +2134,7 @@ private:
 
 private:
   detail::tokenizer tok;
-  const verilog_reader& reader;
+  verilog_reader& reader;
   diagnostic_engine* diag;
 
   std::string token;
@@ -2160,7 +2160,7 @@ private:
  * \param diag An optional diagnostic engine with callback methods for parse errors
  * \return Success if parsing has been successful, or parse error if parsing has failed
  */
-[[nodiscard]] inline return_code read_verilog( std::istream& in, const verilog_reader& reader, diagnostic_engine* diag = nullptr )
+[[nodiscard]] inline return_code read_verilog( std::istream& in, verilog_reader& reader, diagnostic_engine* diag = nullptr )
 {
   verilog_parser parser( in, reader, diag );
   auto result = parser.parse_modules();
@@ -2184,7 +2184,7 @@ private:
  * \param diag An optional diagnostic engine with callback methods for parse errors
  * \return Success if parsing has been successful, or parse error if parsing has failed
  */
-[[nodiscard]] inline return_code read_verilog( const std::string& filename, const verilog_reader& reader, diagnostic_engine* diag = nullptr )
+[[nodiscard]] inline return_code read_verilog( const std::string& filename, verilog_reader& reader, diagnostic_engine* diag = nullptr )
 {
   std::ifstream in( detail::word_exp_filename( filename ), std::ifstream::in );
   if ( !in.is_open() )

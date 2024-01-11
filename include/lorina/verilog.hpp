@@ -552,6 +552,18 @@ public:
     _os << "// " << comment << std::endl;
   }
 
+  void on_not_gate( const std::string& op1, const std::string& op2 ) const {
+    _os << "not " << "(" << op1 << ", " << op2 << ")" << ";" << std::endl;
+  }
+
+  void on_and_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const {
+    _os << "and " << "(" << op1 << ", " << op2 << ", " << op3 << ")" << ";" << std::endl;
+  }
+
+  void on_or_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const {
+    _os << "or " << "(" << op1 << ", " << op2 << ", " << op3 << ")" << ";" << std::endl;
+  }
+
   std::ostream& _os; /*!< Output stream */
 };                   /* verilog_pretty_printer */
 
@@ -1757,8 +1769,10 @@ public:
     }
 
     /* callback */
-    on_action.call_deferred<MODULE_INST_FN>( inputs, outputs,
-                                             std::make_tuple( module_name, params, inst_name, args ) );
+    // on_action.call_deferred<MODULE_INST_FN>( inputs, outputs,
+    //                                          std::make_tuple( module_name, params, inst_name, args ) );
+
+    reader.on_module_instantiation(module_name, params, inst_name, args);
 
     return success;
   }

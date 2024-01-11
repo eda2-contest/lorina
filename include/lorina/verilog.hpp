@@ -817,7 +817,7 @@ protected:
 
 
 static std::vector<std::string> FIX_MODULES = {"VERIFIC_DFFRS", "VERIFIC_FADD"};
-
+static std::vector<std::string> GATE_OPERARIONS = {"or", "and", "not"};
 
 /*! \brief Simple parser for VERILOG format.
  *
@@ -930,6 +930,7 @@ public:
     on_action.declare_known( "1" );
     on_action.declare_known( "1'b0" );
     on_action.declare_known( "1'b1" );
+    fix_module_instance_hardcode();
   }
 
   bool get_token( std::string& token )
@@ -1089,6 +1090,31 @@ public:
           return false;
         }
       }
+      else
+      {
+        break;
+      }
+    } while ( token != "assign" && token != "endmodule");
+
+    while ( token != "endmodule" )
+    {
+
+      if ( token == "assign" )
+      {
+        success = parse_assign();
+        if ( !success )
+        {
+          if ( diag )
+          {
+            diag->report( diag_id::ERR_VERILOG_ASSIGNMENT );
+          }
+          return false;
+        }
+
+        valid = get_token( token );
+        if ( !valid )
+          return false;
+      }
       else if ( token == "not" )
       {
         success = parse_not_gate();
@@ -1100,6 +1126,11 @@ public:
           }
           return false;
         }
+
+        valid = get_token( token );
+        if ( !valid )
+          return false;
+
       }
       else if ( token == "and" )
       {
@@ -1112,6 +1143,10 @@ public:
           }
           return false;
         }
+
+        valid = get_token( token );
+        if ( !valid )
+          return false;
       }
       else if ( token == "or" )
       {
@@ -1121,26 +1156,6 @@ public:
           if ( diag )
           {
             diag->report( diag_id::ERR_VERILOG_GATE_OPERATION_DECLARATION );
-          }
-          return false;
-        }
-      }
-      else
-      {
-        break;
-      }
-    } while ( token != "assign" && token != "endmodule" );
-
-    while ( token != "endmodule" )
-    {
-      if ( token == "assign" )
-      {
-        success = parse_assign();
-        if ( !success )
-        {
-          if ( diag )
-          {
-            diag->report( diag_id::ERR_VERILOG_ASSIGNMENT );
           }
           return false;
         }
@@ -1168,23 +1183,23 @@ public:
     }
 
     /* check dangling objects */
-    bool result = true;
-    const auto& deps = on_action.unresolved_dependencies();
-    if ( deps.size() > 0 )
-      result = false;
+    // bool result = true;
+    // const auto& deps = on_action.unresolved_dependencies();
+    // if ( deps.size() > 0 )
+    //   result = false;
 
-    for ( const auto& r : deps )
-    {
-      if ( diag )
-      {
-        diag->report( diag_id::WRN_UNRESOLVED_DEPENDENCY )
-            .add_argument( r.first )
-            .add_argument( r.second );
-      }
-    }
+    // for ( const auto& r : deps )
+    // {
+    //   if ( diag )
+    //   {
+    //     diag->report( diag_id::WRN_UNRESOLVED_DEPENDENCY )
+    //         .add_argument( r.first )
+    //         .add_argument( r.second );
+    //   }
+    // }
 
-    if ( !result )
-      return false;
+    // if ( !result )
+    //   return false;
 
     if ( token == "endmodule" )
     {
@@ -1215,7 +1230,6 @@ public:
       is_fix_module = true;
       return true;
     }
-
 
     valid = get_token( token );
     if ( !valid || token != "(" )
@@ -1588,6 +1602,28 @@ public:
     if ( token != ";" )
       return false;
     return true;
+  }
+
+  void fix_module_instance_hardcode() {
+    module_info dff_info;
+    dff_info.inputs.push_back("d");
+    dff_info.inputs.push_back("clk");
+    dff_info.inputs.push_back("s");
+    dff_info.inputs.push_back("r");
+    dff_info.outputs.push_back("q");
+
+    modules.insert({"VERIFIC_DFFRS", dff_info});
+
+    module_info adder_info;
+    dff_info.inputs.push_back("cin");
+    dff_info.inputs.push_back("a");
+    dff_info.inputs.push_back("b");
+    dff_info.outputs.push_back("o");
+    dff_info.outputs.push_back("cout");
+
+    modules.insert({"VERIFIC_FADD", dff_info});
+
+
   }
 
   bool parse_module_instantiation()

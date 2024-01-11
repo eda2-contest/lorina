@@ -342,6 +342,18 @@ public:
     (void)op3;
   }
 
+  /*! \brief Callback method for parsed xor-gate with 3 operands 
+   * \param op1 operand1 of assignment
+   * \param op2 operand2 of assignment
+   * \param op3 operand2 of assignment
+   */
+  virtual void on_xor_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const
+  {
+    (void)op1;
+    (void)op2;
+    (void)op3;
+  }
+
 
 }; /* verilog_reader */
 
@@ -552,16 +564,20 @@ public:
     _os << "// " << comment << std::endl;
   }
 
-  void on_not_gate( const std::string& op1, const std::string& op2 ) const {
+  void on_not_gate( const std::string& op1, const std::string& op2 ) const override{
     _os << "not " << "(" << op1 << ", " << op2 << ")" << ";" << std::endl;
   }
 
-  void on_and_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const {
+  void on_and_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const override{
     _os << "and " << "(" << op1 << ", " << op2 << ", " << op3 << ")" << ";" << std::endl;
   }
 
-  void on_or_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const {
+  void on_or_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const override{
     _os << "or " << "(" << op1 << ", " << op2 << ", " << op3 << ")" << ";" << std::endl;
+  }
+
+  void on_xor_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const override{
+    _os << "xor " << "(" << op1 << ", " << op2 << ", " << op3 << ")" << ";" << std::endl;
   }
 
   std::ostream& _os; /*!< Output stream */
@@ -1176,6 +1192,22 @@ public:
         if ( !valid )
           return false;
       }
+      else if ( token == "xor" )
+      {
+        success = parse_xor_gate();
+        if ( !success )
+        {
+          if ( diag )
+          {
+            diag->report( diag_id::ERR_VERILOG_GATE_OPERATION_DECLARATION );
+          }
+          return false;
+        }
+
+        valid = get_token( token );
+        if ( !valid )
+          return false;
+      }
       else
       {
         success = parse_module_instantiation();
@@ -1396,6 +1428,52 @@ public:
       return false;
 
     reader.on_or_gate( op1, op2 , op3);
+    return true;
+  }
+
+  bool parse_xor_gate() {
+    if ( token != "xor" ) 
+      return false;
+
+    valid = get_token( token );
+
+    if (!valid || token != "(")
+      return false;
+
+    std::string op1, op2, op3;
+
+    if ( !parse_signal_name() )
+      return false;
+
+    op1 = token;
+
+    valid = get_token( token ); // , or )
+    if ( !valid || token != "," )
+      return false;
+    
+    if ( !parse_signal_name() )
+      return false;
+
+    op2 = token;
+
+    valid = get_token( token ); // , or )
+    if ( !valid || token != "," )
+      return false;
+
+    if ( !parse_signal_name() )
+      return false;
+
+    op3 = token;
+
+    valid = get_token( token );
+    if (!valid || token != ")")
+      return false;
+
+    valid = get_token( token );
+    if ( !valid || token != ";" )
+      return false;
+
+    reader.on_xor_gate( op1, op2 , op3);
     return true;
   }
 

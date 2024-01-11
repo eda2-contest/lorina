@@ -304,7 +304,7 @@ public:
   virtual void on_endmodule() const {}
 
 
-    /*! \brief Callback method for parsed not-gate with 2 operands 
+  /*! \brief Callback method for parsed not-gate with 2 operands 
    * \param op1 operand1 of assignment
    * \param op2 operand2 of assignment
    */
@@ -312,6 +312,34 @@ public:
   {
     (void)op1;
     (void)op2;
+  }
+
+
+
+  /*! \brief Callback method for parsed and-gate with 3 operands 
+   * \param op1 operand1 of assignment
+   * \param op2 operand2 of assignment
+   * \param op3 operand3 of assignment
+   */
+  virtual void on_and_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const
+  {
+    (void)op1;
+    (void)op2;
+    (void)op3;
+  }
+
+
+
+  /*! \brief Callback method for parsed or-gate with 3 operands 
+   * \param op1 operand1 of assignment
+   * \param op2 operand2 of assignment
+   * \param op3 operand2 of assignment
+   */
+  virtual void on_or_gate( const std::string& op1, const std::string& op2, const std::string& op3 ) const
+  {
+    (void)op1;
+    (void)op2;
+    (void)op3;
   }
 
 
@@ -1073,6 +1101,30 @@ public:
           return false;
         }
       }
+      else if ( token == "and" )
+      {
+        success = parse_and_gate();
+        if ( !success )
+        {
+          if ( diag )
+          {
+            diag->report( diag_id::ERR_VERILOG_GATE_OPERATION_DECLARATION );
+          }
+          return false;
+        }
+      }
+      else if ( token == "or" )
+      {
+        success = parse_or_gate();
+        if ( !success )
+        {
+          if ( diag )
+          {
+            diag->report( diag_id::ERR_VERILOG_GATE_OPERATION_DECLARATION );
+          }
+          return false;
+        }
+      }
       else
       {
         break;
@@ -1196,7 +1248,6 @@ public:
       return false;
 
     valid = get_token( token );
-
     if (!valid || token != "(")
       return false;
 
@@ -1217,12 +1268,109 @@ public:
     op2 = token;
 
     valid = get_token( token );
+    if (!valid || token != ")")
+      return false;
+
+    valid = get_token( token );
     if ( !valid || token != ";" )
       return false;
 
     reader.on_not_gate( op1, op2 );
     return true;
 
+  }
+
+  bool parse_and_gate() {
+    if ( token != "and" ) 
+      return false;
+
+    valid = get_token( token );
+
+    if (!valid || token != "(")
+      return false;
+
+    std::string op1, op2, op3;
+
+    if ( !parse_signal_name() )
+      return false;
+
+    op1 = token;
+
+    valid = get_token( token ); // , or )
+    if ( !valid || token != "," )
+      return false;
+    
+    if ( !parse_signal_name() )
+      return false;
+
+    op2 = token;
+
+    valid = get_token( token ); // , or )
+    if ( !valid || token != "," )
+      return false;
+
+    if ( !parse_signal_name() )
+      return false;
+
+    op3 = token;
+
+    valid = get_token( token );
+    if (!valid || token != ")")
+      return false;
+
+    valid = get_token( token );
+    if ( !valid || token != ";" )
+      return false;
+
+    reader.on_and_gate( op1, op2 , op3);
+    return true;
+  }
+
+
+  bool parse_or_gate() {
+    if ( token != "or" ) 
+      return false;
+
+    valid = get_token( token );
+
+    if (!valid || token != "(")
+      return false;
+
+    std::string op1, op2, op3;
+
+    if ( !parse_signal_name() )
+      return false;
+
+    op1 = token;
+
+    valid = get_token( token ); // , or )
+    if ( !valid || token != "," )
+      return false;
+    
+    if ( !parse_signal_name() )
+      return false;
+
+    op2 = token;
+
+    valid = get_token( token ); // , or )
+    if ( !valid || token != "," )
+      return false;
+
+    if ( !parse_signal_name() )
+      return false;
+
+    op3 = token;
+
+    valid = get_token( token );
+    if (!valid || token != ")")
+      return false;
+
+    valid = get_token( token );
+    if ( !valid || token != ";" )
+      return false;
+
+    reader.on_or_gate( op1, op2 , op3);
+    return true;
   }
 
   bool parse_inputs()

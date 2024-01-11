@@ -39,9 +39,9 @@
 #include "detail/utils.hpp"
 #include "diagnostics.hpp"
 #include "verilog_regex.hpp"
-#include <iostream>
+#include <string>
+#include <cassert>
 #include <queue>
-
 namespace lorina
 {
 
@@ -355,6 +355,18 @@ public:
   }
 
 
+  /*! \brief Callback method for reading a 2-to-1 multiplexer (ITE) assignment statement.
+   *
+   * \param out Output signal
+   * \param ins List of three input signals, in the order (if, then, else)
+   */
+  virtual void on_assign_mux21( const std::string&  out, const std::vector<std::pair<std::string, bool>>& ins ) const
+  {
+    (void)out;
+    (void)ins;
+  }
+
+
 }; /* verilog_reader */
 
 /*! \brief A VERILOG reader for prettyprinting a simplistic VERILOG format.
@@ -551,6 +563,15 @@ public:
     const std::string p2 = op2.second ? fmt::format( "~{}", op2.first ) : op2.first;
     const std::string p3 = op3.second ? fmt::format( "~{}", op3.first ) : op3.first;
     _os << fmt::format( "assign {0} = ( {1} & {2} ) | ( {1} & {3} ) | ( {2} & {3} ) ;\n", lhs, p1, p2, p3 );
+  }
+
+  void on_mux21( const std::string& lhs, const std::pair<std::string, bool>& op1, const std::pair<std::string, bool>& op2, const std::pair<std::string, bool>& op3 ) const override {
+    const std::string p1 = op1.second ? fmt::format( "~{}", op1.first ) : op1.first;
+    const std::string p2 = op2.second ? fmt::format( "~{}", op2.first ) : op2.first;
+    const std::string p3 = op3.second ? fmt::format( "~{}", op3.first ) : op3.first;
+
+    _os << fmt::format( "assign {0} = {1} ? {2} : {3} ;\n", lhs, p1, p2, p3 );
+    
   }
 
   void on_endmodule() const override
@@ -958,6 +979,7 @@ public:
     on_action.declare_known( "1" );
     on_action.declare_known( "1'b0" );
     on_action.declare_known( "1'b1" );
+    on_action.declare_known( "1'bx" );
     fix_module_instance_hardcode();
   }
 
@@ -1678,7 +1700,7 @@ public:
       return false;
 
     /* expression */
-    bool success = parse_rhs_expression( lhs );
+    bool success = parse_rhs_new( lhs );
     if ( !success )
     {
       if ( diag )
@@ -1691,6 +1713,53 @@ public:
 
     if ( token != ";" )
       return false;
+
+    return true;
+  }
+
+  bool parse_rhs_new(const std::string& lhs) {
+
+    if ( !parse_signal_name() )
+      return false;
+
+    std::string arg0, arg1, arg2;
+
+    arg0 = token;
+
+    valid = get_token( token );
+    if ( !valid)
+      return false;
+    
+    if (token == ";") {
+      reader.on_assign(lhs, {arg0, true});
+      return true;
+    } else {
+      if (token != "?")
+        return false;
+      
+      if ( !parse_signal_name() )
+        return false;
+
+      arg1 = token;
+
+      valid = get_token( token );
+      if ( !valid || token != ":")
+        return false;
+      
+      if ( !parse_signal_name() )
+        return false;
+
+      arg2 = token;
+
+      valid = get_token( token );
+      if ( !valid || token != ";")
+        return false;
+
+      reader.on_assign_mux21(lhs, {{arg0, true}, {arg1, true}, {arg2, true}});
+      reader.on_mux21(lhs, {arg0, true}, {arg1, true}, {arg2, true});
+    }
+
+
     return true;
   }
 
@@ -1773,6 +1842,7 @@ public:
       return false;
 
     std::vector<std::pair<std::string, std::string>> args;
+
     do
     {
       valid = get_token( token );
@@ -1799,9 +1869,11 @@ public:
       if ( !valid || token != "(" )
         return false; // (
 
-      valid = get_token( token );
-      if ( !valid )
-        return false; // signal name
+      // valid = get_token( token );
+      // if ( !valid )
+      //   return false; // signal name
+      if ( !parse_signal_name() )
+        return false;
       auto const arg1 = token;
 
       valid = get_token( token );
@@ -1875,9 +1947,11 @@ public:
       assert( sm.size() == 3u );
       std::vector<std::pair<std::string, bool>> args{{sm[2], sm[1] == "~"}};
 
-      on_action.call_deferred<GATE_FN>( /* dependencies */ { sm[2] }, { lhs },
-                                        /* gate-function params */ std::make_tuple( args, lhs, "assign" )
-                                      );
+      // on_action.call_deferred<GATE_FN>( /* dependencies */ { sm[2] }, { lhs },
+      //                                   /* gate-function params */ std::make_tuple( args, lhs, "assign" )
+      //                                 );
+
+      reader.on_assign(lhs, args[0]);
     }
     else if ( std::regex_match( s, sm, verilog_regex::binary_expression ) )
     {
@@ -1955,9 +2029,12 @@ public:
       {
         if ( sm[3] == "?" && sm[6] == ":" )
         {
-          on_action.call_deferred<GATE_FN>( /* dependencies */ { arg0.first, arg1.first, arg2.first }, { lhs },
-                                            /* gate-function params */ std::make_tuple( args, lhs, "mux21" )
-                                          );
+          // on_action.call_deferred<GATE_FN>( /* dependencies */ { arg0.first, arg1.first, arg2.first }, { lhs },
+          //                                   /* gate-function params */ std::make_tuple( args, lhs, "mux21" )
+          //                                 );
+
+          reader.on_assign_mux21(lhs, args);
+          reader.on_mux21(lhs, arg0, arg1, arg2);
           return true;
         }
         return false;
@@ -2070,6 +2147,7 @@ private:
   std::unordered_map<std::string, module_info> modules;
 
   bool is_fix_module = false;
+
 }; /* verilog_parser */
 
 /*! \brief Reader function for VERILOG format.

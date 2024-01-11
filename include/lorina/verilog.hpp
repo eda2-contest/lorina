@@ -787,6 +787,10 @@ protected:
   std::ostream& _os; /*!< Output stream */
 };                   /* verilog_writer */
 
+
+static std::vector<std::string> FIX_MODULES = {"VERIFIC_DFFRS", "VERIFIC_FADD"};
+
+
 /*! \brief Simple parser for VERILOG format.
  *
  * Simplistic grammar-oriented parser for a structural VERILOG format.
@@ -981,6 +985,9 @@ public:
       {
         return false;
       }
+
+      if (is_fix_module) 
+        return true;
     }
     return true;
   }
@@ -996,6 +1003,9 @@ public:
       }
       return false;
     }
+
+    if(is_fix_module)
+      return true;
 
     do
     {
@@ -1149,6 +1159,11 @@ public:
     module_name = token;
 
     //TODO judge wether it is VERIFIC_DFFRS
+    if (std::find(FIX_MODULES.begin(), FIX_MODULES.end(), module_name) != std::end(FIX_MODULES)) {
+      is_fix_module = true;
+      return true;
+    }
+
 
     valid = get_token( token );
     if ( !valid || token != "(" )
@@ -1777,6 +1792,8 @@ private:
 
   detail::call_in_topological_order<PackedFns, ParamMaps> on_action;
   std::unordered_map<std::string, module_info> modules;
+
+  bool is_fix_module = false;
 }; /* verilog_parser */
 
 /*! \brief Reader function for VERILOG format.

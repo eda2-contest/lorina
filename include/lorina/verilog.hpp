@@ -1755,8 +1755,8 @@ public:
       if ( !valid || token != ";")
         return false;
 
-      reader.on_assign_mux21(lhs, {{arg0, true}, {arg1, true}, {arg2, true}});
-      reader.on_mux21(lhs, {arg0, true}, {arg1, true}, {arg2, true});
+      reader.on_assign_mux21(lhs, {{arg0, false}, {arg1, false}, {arg2, false}});
+      reader.on_mux21(lhs, {arg0, false}, {arg1, false}, {arg2, false});
     }
 
 

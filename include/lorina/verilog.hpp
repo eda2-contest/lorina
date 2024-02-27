@@ -482,7 +482,7 @@ public:
     _os << " " << inst_name << "(";
     for ( auto i = 0u; i < args.size(); ++i )
     {
-      _os << args.at( i ).first << "(" << args.at( i ).second << ")";
+      _os <<args.at( i ).first << "(" <<args.at( i ).second << ")";
       if ( i + 1 < args.size() )
         _os << ", ";
     }
@@ -986,17 +986,20 @@ public:
   bool get_token( std::string& token )
   {
     detail::tokenizer_return_code result;
+    
     do
     {
       if ( tokens.empty() )
       {
         result = tok.get_token_internal( token );
         detail::trim( token );
+        
       }
       else
       {
         token = tokens.front();
         tokens.pop();
+        
         return true;
       }
 
@@ -1803,11 +1806,10 @@ public:
 
     /* get module info */
     auto const& info = modules[module_name];
-
     valid = get_token( token );
     if ( !valid )
       return false;
-
+    
     std::vector<std::string> params;
     if ( token == "#" )
     {
@@ -1822,7 +1824,7 @@ public:
           return false;
         params.emplace_back( token );
 
-        valid = get_token( token ); // ,
+        valid = get_token( token ); 
         if ( !valid )
           return false;
       } while ( valid && token == "," );
@@ -1836,7 +1838,7 @@ public:
     }
 
     std::string const inst_name = token; // name of instantiation
-
+    // std::cout << "inst_name:"<<inst_name << std::endl;
     valid = get_token( token );
     if ( !valid || token != "(" )
       return false;

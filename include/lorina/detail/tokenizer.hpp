@@ -74,14 +74,15 @@ public:
     char c;
     while ( get_char( c ) )
     {
-      if ( c == '\n' && _comment_mode )
+      
+      if ( c == '\n' && _comment_mode ) 
       {
         _comment_mode = false;
         return tokenizer_return_code::comment;
       }
       else if ( !_comment_mode )
       {
-        if ( ( c == ' ' || c == '\\' || c == '\n' ) && !_quote_mode )
+        if ( ( c == ' ' || c == '\n' ) && !_quote_mode )
         {
           return tokenizer_return_code::valid;
         }
@@ -95,6 +96,7 @@ public:
           {
             lookahead += c;
           }
+
           return tokenizer_return_code::valid;
         }
 
